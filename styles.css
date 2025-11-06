@@ -774,3 +774,61 @@ nav {
     margin-bottom: 30px;
     line-height: 1.6;
 }
+
+.empty-state p {
+    margin-bottom: 30px;
+    line-height: 1.6;
+}
+
+/* === NOVOS ESTILOS PARA PÁGINA DE SERVIÇOS === */
+
+.services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 30px;
+    padding: 20px 0;
+}
+
+.service-card {
+    text-align: center;
+    padding: 40px 30px;
+    border-radius: 20px;
+    background: #f7fafc;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    border: 1px solid #e2e8f0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.service-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+    background: white;
+}
+
+.service-icon {
+    font-size: 3.5rem;
+    margin-bottom: 20px;
+    display: block;
+}
+
+.service-card h3 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 15px;
+    color: #2d3748;
+}
+
+.service-card p {
+    color: #4a5568;
+    line-height: 1.7;
+    flex-grow: 1;
+}
+
+/* Ajusta o botão dentro do card de serviço */
+.service-card .btn-small {
+    width: 100%;
+    flex-shrink: 0; /* Impede que o botão encolha */
+}
