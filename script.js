@@ -159,6 +159,40 @@ function showPage(pageId) {
         loadAdoptionPets();
     } else if (pageId === 'my-pets') {
         loadMyPets();
+    } else if (pageId === 'services') {
+function loadServices() {
+    // Encontra o container onde os cards de serviço serão inseridos
+    const container = document.querySelector('#services .services-grid');
+    
+    // Verifica se o container existe
+    if (!container) {
+        console.error("Container de serviços não encontrado!");
+        return;
+    }
+
+    // Verifica se há serviços para mostrar
+    if (servicesData.length === 0) {
+        // Se não houver serviços, mostra uma mensagem de "vazio"
+        container.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-state-icon">🛠️</div>
+                <h3>Nenhum serviço disponível</h3>
+                <p>No momento, não há serviços para exibir. Volte em breve!</p>
+            </div>
+        `;
+        return;
+    }
+
+    // Cria o HTML para cada serviço usando map() e junta tudo com join()
+    container.innerHTML = servicesData.map(service => `
+        <div class="service-card">
+            <span class="service-icon">${service.icon}</span>
+            <h3>${service.title}</h3>
+            <p>${service.description}</p>
+            <button class="btn btn-small" style="margin-top: 20px;">${service.buttonText}</button>
+        </div>
+    `).join('');
+}
     }
 }
 
@@ -686,4 +720,5 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // ==================== INICIALIZAÇÃO ====================
+
 updateAuthButtons();
