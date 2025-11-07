@@ -7,15 +7,15 @@ let currentUser = null;
 let users = [
     {
         id: 1,
-        name: "Maria Silva",
-        email: "maria@email.com",
+        name: "Beatriz Lopes",
+        email: "beatriz@email.com",
         phone: "(11) 99999-1234",
         password: "123456",
         joinDate: new Date('2024-01-15')
     },
     {
         id: 2,
-        name: "João Santos",
+        name: "João Neto",
         email: "joao@email.com",
         phone: "(11) 98888-5678",
         password: "123456",
@@ -372,6 +372,48 @@ function logout() {
 // 5. GERENCIAMENTO DE PETS
 // ===================================================================
 
+// ATUALIZAÇÃO: Lógica para mostrar/ocultar botão delete
+function showPetRegisterPage(petId = null) {
+    const form = document.getElementById('petRegisterForm');
+    const title = document.getElementById('petFormTitle');
+    const button = document.getElementById('petFormButton');
+    const hiddenId = document.getElementById('petEditId');
+    const photoInput = document.getElementById('petPhoto');
+    const deleteButtonWrapper = document.getElementById('deletePetButtonWrapper');
+
+    form.reset();
+    photoInput.value = ''; 
+
+    if (petId === null) {
+        title.textContent = 'Cadastrar Pet';
+        button.textContent = 'Cadastrar Pet';
+        hiddenId.value = '';
+        deleteButtonWrapper.style.display = 'none'; // Oculta botão excluir
+    } else {
+        const pet = pets.find(p => p.id === petId);
+        if (pet && pet.ownerId === currentUser.id) {
+            title.textContent = 'Atualizar Pet';
+            button.textContent = 'Atualizar Pet';
+            hiddenId.value = pet.id;
+            deleteButtonWrapper.style.display = 'block'; // Exibe botão excluir
+
+            document.getElementById('petType').value = pet.type;
+            document.getElementById('petName').value = pet.name;
+            document.getElementById('petSpecies').value = pet.species;
+            document.getElementById('petBreed').value = pet.breed;
+            document.getElementById('petAge').value = pet.age;
+            document.getElementById('petSize').value = pet.size;
+            document.getElementById('petGender').value = pet.gender;
+            document.getElementById('petDescription').value = pet.description;
+        } else {
+            alert("Pet não encontrado ou você não tem permissão para editá-lo.");
+            return;
+        }
+    }
+    showPage('pet-register');
+}
+
+
 function handlePetRegistration(event) {
     event.preventDefault();
     
@@ -385,6 +427,8 @@ function handlePetRegistration(event) {
     const petData = Object.fromEntries(formData);
     const photoFile = document.getElementById('petPhoto').files[0];
     let photoURL = null;
+    
+    const petId = document.getElementById('petEditId').value;
 
     if (photoFile) {
         photoURL = URL.createObjectURL(photoFile);
@@ -396,35 +440,67 @@ function handlePetRegistration(event) {
         return;
     }
 
-    const newPet = {
-        id: nextPetId++,
-        ownerId: currentUser.id,
-        name: petData.name,
-        species: petData.species,
-        breed: petData.breed,
-        age: petData.age,
-        size: petData.size,
-        gender: petData.gender,
-        type: petData.type,
-        status: petData.type === 'adoption' ? 'available' : 'personal',
-        description: petData.description,
-        createdAt: new Date(),
-        photo: photoURL,
-        vaccines: []
-    };
+    if (petId) {
+        const petToUpdate = pets.find(p => p.id === parseInt(petId));
+        if (petToUpdate && petToUpdate.ownerId === currentUser.id) {
+            
+            petToUpdate.name = petData.name;
+            petToUpdate.species = petData.species;
+            petToUpdate.breed = petData.breed;
+            petToUpdate.age = petData.age;
+            petToUpdate.size = petData.size;
+            petToUpdate.gender = petData.gender;
+            petToUpdate.type = petData.type;
+            petToUpdate.status = petData.type === 'adoption' ? 'available' : 'personal';
+            petToUpdate.description = petData.description;
+            if (photoURL) { 
+                petToUpdate.photo = photoURL;
+            }
 
-    pets.push(newPet);
-    showMessage('petRegisterMessage', `${petData.name} foi cadastrado com sucesso!`, 'success');
-    document.getElementById('petRegisterForm').reset();
-    
-    setTimeout(() => {
-        if (petData.type === 'adoption') {
-            showPage('adoption');
+            showMessage('petRegisterMessage', `${petData.name} foi atualizado com sucesso!`, 'success');
+            document.getElementById('petRegisterForm').reset();
+            document.getElementById('petEditId').value = '';
+            
+            setTimeout(() => {
+                showPage('my-pets');
+            }, 2000);
+
         } else {
-            showPage('my-pets');
+            showMessage('petRegisterMessage', 'Erro ao atualizar. Pet não encontrado.', 'error');
         }
-    }, 2000);
+
+    } else {
+        const newPet = {
+            id: nextPetId++,
+            ownerId: currentUser.id,
+            name: petData.name,
+            species: petData.species,
+            breed: petData.breed,
+            age: petData.age,
+            size: petData.size,
+            gender: petData.gender,
+            type: petData.type,
+            status: petData.type === 'adoption' ? 'available' : 'personal',
+            description: petData.description,
+            createdAt: new Date(),
+            photo: photoURL,
+            vaccines: []
+        };
+
+        pets.push(newPet);
+        showMessage('petRegisterMessage', `${petData.name} foi cadastrado com sucesso!`, 'success');
+        document.getElementById('petRegisterForm').reset();
+        
+        setTimeout(() => {
+            if (petData.type === 'adoption') {
+                showPage('adoption');
+            } else {
+                showPage('my-pets');
+            }
+        }, 2000);
+    }
 }
+
 
 function loadAdoptionPets() {
     const container = document.getElementById('adoptionPets');
@@ -459,7 +535,7 @@ function loadMyPets() {
                 <div class="empty-state-icon">🐾</div>
                 <h3>Você ainda não tem pets cadastrados</h3>
                 <p>Cadastre seu primeiro pet para começar a usar a carteira de vacinação digital.</p>
-                <button class="btn" onclick="showPage('pet-register')" style="width: auto; padding: 15px 30px;">
+                <button class="btn" onclick="showPetRegisterPage(null)" style="width: auto; padding: 15px 30px;">
                     Cadastrar Meu Primeiro Pet
                 </button>
             </div>
@@ -481,6 +557,7 @@ function getStatusIndicator(pet) {
     return '';
 }
 
+// ATUALIZAÇÃO: Botão "Excluir" removido do card
 function displayPets(petsToShow, container, isAdoptionView) {
     container.innerHTML = petsToShow.map(pet => {
         const owner = users.find(u => u.id === pet.ownerId);
@@ -489,12 +566,20 @@ function displayPets(petsToShow, container, isAdoptionView) {
         
         let actionButtons = '';
         if (isAdoptionView) {
-            actionButtons = `
-                <button class="btn btn-small" onclick="openPetProfile(${pet.id})">Ver Perfil</button>
-                <button class="btn btn-small" onclick="showContact(${pet.ownerId})" style="background: #38a169;">Contato</button>
-            `;
+            actionButtons = `<button class="btn btn-small" onclick="openPetProfile(${pet.id})">Ver Perfil</button>`;
+            if (currentUser) {
+                actionButtons += ` <button class="btn btn-small" onclick="showContact(${pet.ownerId})" style="background: #38a169;">Contato</button>`;
+            } else {
+                actionButtons += ` <button class="btn btn-small" onclick="showPage('login')" style="background: #a0aec0;">Logar para Contato</button>`;
+            }
         } else { // My Pets View
             actionButtons = `<button class="btn btn-small" onclick="openPetProfile(${pet.id})">Ver Perfil</button>`;
+            
+            if (currentUser && pet.ownerId === currentUser.id) {
+                 actionButtons += `<button class="btn btn-small" onclick="showPetRegisterPage(${pet.id})" style="background: #4299e1;">Editar</button>`;
+                 // O botão Excluir foi removido daqui
+            }
+
             if (pet.type === 'personal') {
                 actionButtons += `<button class="btn btn-small" onclick="openVaccinationModal(${pet.id})" style="background: #ed8936;">+ Vacina</button>`;
             } else if (pet.type === 'adoption' && pet.status === 'available') {
@@ -536,13 +621,38 @@ function displayPets(petsToShow, container, isAdoptionView) {
         `;
     }).join('');
 }
+
+// ATUALIZAÇÃO: (NOVA FUNÇÃO) Exclui o pet A PARTIR do formulário
+function deletePetFromForm() {
+    const petId = document.getElementById('petEditId').value;
+    if (!petId) return;
+
+    if (confirm("Tem certeza de que deseja excluir este pet? Esta ação não pode ser desfeita.")) {
+        const petIndex = pets.findIndex(p => p.id === parseInt(petId));
+        
+        if (petIndex === -1) {
+            alert("Erro: Pet não encontrado.");
+            return;
+        }
+
+        if (pets[petIndex].ownerId !== currentUser.id) {
+            alert("Você não tem permissão para excluir este pet.");
+            return;
+        }
+
+        pets.splice(petIndex, 1);
+        
+        // Retorna para a página "Meus Pets"
+        showPage('my-pets');
+    }
+}
     
 function markAsAdopted(petId) {
     if (confirm("Você tem certeza que deseja marcar este pet como adotado? Esta ação removerá o pet da lista pública de adoção.")) {
         const pet = pets.find(p => p.id === petId);
         if (pet) {
             pet.status = 'adopted';
-            loadMyPets(); // Refresh the "My Pets" view to show the updated status
+            loadMyPets(); 
         }
     }
 }
@@ -597,37 +707,142 @@ function clearFilters() {
 // ===================================================================
 
 function loadServices() {
-    // CORREÇÃO: O seletor agora vai funcionar pois a classe no HTML foi corrigida
-    const container = document.querySelector('#services .services-grid'); 
+    const container = document.getElementById('servicesGrid'); 
     if (!container) {
-        console.error("Container de serviços não encontrado!");
+        console.error("Container de grade de serviços não encontrado!");
         return;
     }
-
-    if (servicesData.length === 0) {
-        container.innerHTML = `
-            <div class="empty-state">
-                <div class="empty-state-icon">🛠️</div>
-                <h3>Nenhum serviço disponível</h3>
-                <p>No momento, não há serviços para exibir. Volte em breve!</p>
-            </div>
-        `;
-        return;
-    }
-
-    container.innerHTML = servicesData.map(service => `
-        <div class="service-card">
-            <span class="service-icon">${service.icon}</span>
-            <h3>${service.title}</h3>
-            <p>${service.description}</p>
-            <button class="btn btn-small" style="margin-top: 20px;" onclick="showServiceProviders('${service.key}')">
-                ${service.buttonText}
-            </button>
-        </div>
-    `).join('');
+    
+    document.getElementById('serviceSearchFilter').value = '';
+    document.getElementById('serviceCategoryFilter').value = '';
+    displayServiceProviders(serviceProviders, container);
 }
 
-// CORREÇÃO: FUNÇÃO ADICIONADA PARA CADASTRO DE SERVIÇO
+// ATUALIZAÇÃO: Botão "Excluir" removido do card
+function displayServiceProviders(providersToShow, container) {
+    if (!container) {
+        console.error("Container de grade de serviços não encontrado!");
+        return;
+    }
+
+    if (providersToShow.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-state-icon">🤷</div>
+                <h3>Nenhum profissional encontrado</h3>
+                <p>Tente ajustar os filtros de busca.</p>
+            </div>
+        `;
+    } else {
+        container.innerHTML = providersToShow.map(provider => {
+            
+            let providerDetails = `<p><strong>Descrição:</strong> ${provider.description}</p>`;
+            let providerActionsContent = '';
+
+            if (currentUser) {
+                const isOwner = currentUser.id === provider.ownerId;
+
+                providerDetails += `<p><strong>Endereço:</strong> ${provider.address}</p>`;
+                providerActionsContent += `
+                    <a href="tel:${provider.phone.replace(/\D/g,'')}" class="btn btn-small" style="background: #38a169;">
+                        📞 Ligar (${provider.phone})
+                    </a>`;
+                
+                if (isOwner) {
+                    providerActionsContent += `
+                        <button class="btn btn-small" onclick="showServiceRegisterPage(${provider.id})" style="background: #4299e1;">
+                            Editar
+                        </button>`;
+                    // O botão Excluir foi removido daqui
+                }
+
+            } else {
+                providerDetails += `
+                    <div class="service-contact-locked" style="margin-top: 15px; padding: 10px; background: #f7fafc; border-radius: 8px; text-align: center;">
+                        <p style="color: #718096; font-size: 0.9rem;">
+                            🔒 Faça login para ver o endereço e telefone.
+                        </p>
+                    </div>`;
+                providerActionsContent = `
+                    <button class="btn btn-small" onclick="showPage('login')" style="background: #a0aec0;">
+                        Fazer Login
+                    </button>`;
+            }
+
+            return `
+                <div class="provider-card">
+                    <div class="provider-header">
+                        <h3 class="provider-name">${provider.name}</h3>
+                        <span class="provider-professional">${provider.professional}</span>
+                    </div>
+                    <div class="provider-info">
+                        ${providerDetails}
+                    </div>
+                    <div class="pet-actions">
+                         ${providerActionsContent}
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+}
+
+function filterServices() {
+    const searchTerm = document.getElementById('serviceSearchFilter').value.toLowerCase();
+    const category = document.getElementById('serviceCategoryFilter').value;
+
+    const filtered = serviceProviders.filter(provider => {
+        const matchesCategory = !category || provider.category === category;
+        const matchesSearch = !searchTerm ||
+            provider.name.toLowerCase().includes(searchTerm) ||
+            provider.professional.toLowerCase().includes(searchTerm) ||
+            (currentUser && provider.address.toLowerCase().includes(searchTerm));
+
+        return matchesCategory && matchesSearch;
+    });
+
+    displayServiceProviders(filtered, document.getElementById('servicesGrid'));
+}
+
+
+// ATUALIZAÇÃO: Lógica para mostrar/ocultar botão delete
+function showServiceRegisterPage(serviceId = null) {
+    const form = document.getElementById('serviceRegisterForm');
+    const title = document.getElementById('serviceFormTitle');
+    const button = document.getElementById('serviceFormButton');
+    const hiddenId = document.getElementById('serviceEditId');
+    const deleteButtonWrapper = document.getElementById('deleteServiceButtonWrapper');
+
+    form.reset();
+
+    if (serviceId === null) {
+        title.textContent = 'Cadastrar Serviço';
+        button.textContent = 'Cadastrar Serviço';
+        hiddenId.value = '';
+        deleteButtonWrapper.style.display = 'none'; // Oculta botão excluir
+    } else {
+        const service = serviceProviders.find(s => s.id === serviceId);
+        if (service && service.ownerId === currentUser.id) {
+            title.textContent = 'Atualizar Serviço';
+            button.textContent = 'Atualizar Serviço';
+            hiddenId.value = service.id;
+            deleteButtonWrapper.style.display = 'block'; // Exibe botão excluir
+
+            document.getElementById('serviceCategory').value = service.category;
+            document.getElementById('serviceName').value = service.name;
+            document.getElementById('serviceProfessional').value = service.professional;
+            document.getElementById('servicePhone').value = service.phone;
+            document.getElementById('serviceAddress').value = service.address;
+            document.getElementById('serviceDescription').value = service.description;
+        } else {
+            alert("Serviço não encontrado ou você não tem permissão para editá-lo.");
+            return;
+        }
+    }
+    showPage('service-register');
+}
+
+
 function handleServiceRegistration(event) {
     event.preventDefault();
 
@@ -639,83 +854,82 @@ function handleServiceRegistration(event) {
 
     const formData = new FormData(event.target);
     const serviceData = Object.fromEntries(formData);
+    const serviceId = document.getElementById('serviceEditId').value;
 
     if (!serviceData.category || !serviceData.name || !serviceData.professional || !serviceData.phone || !serviceData.address || !serviceData.description) {
         showMessage('serviceRegisterMessage', 'Por favor, preencha todos os campos.', 'error');
         return;
     }
 
-    const newService = {
-        id: nextServiceId++,
-        ownerId: currentUser.id,
-        category: serviceData.category,
-        name: serviceData.name,
-        professional: serviceData.professional,
-        phone: serviceData.phone,
-        address: serviceData.address,
-        description: serviceData.description,
-        createdAt: new Date()
-    };
+    if (serviceId) {
+        const serviceToUpdate = serviceProviders.find(s => s.id === parseInt(serviceId));
+        if (serviceToUpdate && serviceToUpdate.ownerId === currentUser.id) {
+            
+            serviceToUpdate.category = serviceData.category;
+            serviceToUpdate.name = serviceData.name;
+            serviceToUpdate.professional = serviceData.professional;
+            serviceToUpdate.phone = serviceData.phone;
+            serviceToUpdate.address = serviceData.address;
+            serviceToUpdate.description = serviceData.description;
 
-    serviceProviders.push(newService);
-    showMessage('serviceRegisterMessage', 'Serviço cadastrado com sucesso!', 'success');
-    document.getElementById('serviceRegisterForm').reset();
-    
-    setTimeout(() => {
-        showPage('services');
-    }, 2000);
+            showMessage('serviceRegisterMessage', 'Serviço atualizado com sucesso!', 'success');
+            document.getElementById('serviceRegisterForm').reset();
+            document.getElementById('serviceEditId').value = '';
+            
+            setTimeout(() => {
+                showPage('services');
+            }, 2000);
+
+        } else {
+             showMessage('serviceRegisterMessage', 'Erro ao atualizar. Serviço não encontrado.', 'error');
+        }
+
+    } else {
+        const newService = {
+            id: nextServiceId++,
+            ownerId: currentUser.id,
+            category: serviceData.category,
+            name: serviceData.name,
+            professional: serviceData.professional,
+            phone: serviceData.phone,
+            address: serviceData.address,
+            description: serviceData.description,
+            createdAt: new Date()
+        };
+
+        serviceProviders.push(newService);
+        showMessage('serviceRegisterMessage', 'Serviço cadastrado com sucesso!', 'success');
+        document.getElementById('serviceRegisterForm').reset();
+        
+        setTimeout(() => {
+            showPage('services');
+        }, 2000);
+    }
 }
 
+// ATUALIZAÇÃO: (NOVA FUNÇÃO) Exclui o serviço A PARTIR do formulário
+function deleteServiceFromForm() {
+    const serviceId = document.getElementById('serviceEditId').value;
+    if (!serviceId) return;
 
-function showServiceProviders(categoryKey) {
-    const category = servicesData.find(s => s.key === categoryKey);
-    if (!category) {
-        console.error("Categoria não encontrada:", categoryKey);
-        return;
+    if (confirm("Tem certeza de que deseja excluir este serviço? Esta ação não pode ser desfeita.")) {
+        const serviceIndex = serviceProviders.findIndex(s => s.id === parseInt(serviceId));
+
+        if (serviceIndex === -1) {
+            alert("Erro: Serviço não encontrado.");
+            return;
+        }
+
+        if (serviceProviders[serviceIndex].ownerId !== currentUser.id) {
+            alert("Você não tem permissão para excluir este serviço.");
+            return;
+        }
+
+        serviceProviders.splice(serviceIndex, 1);
+
+        // Retorna para a página "Serviços"
+        showPage('services');
     }
-
-    const providers = serviceProviders.filter(p => p.category === categoryKey);
-    
-    // CORREÇÃO: Esses elementos agora existem no index.html corrigido
-    const titleEl = document.getElementById('servicesListTitle');
-    const gridEl = document.getElementById('servicesProviderGrid');
-    
-    if (!titleEl || !gridEl) {
-        console.error("Elementos 'servicesListTitle' ou 'servicesProviderGrid' não encontrados no HTML.");
-        return;
-    }
-
-    titleEl.textContent = category.title;
-
-    if (providers.length === 0) {
-        gridEl.innerHTML = `
-            <div class="empty-state">
-                <div class="empty-state-icon">🤷</div>
-                <h3>Nenhum profissional encontrado</h3>
-                <p>Ainda não temos profissionais cadastrados para "${category.title}". Volte em breve!</p>
-            </div>
-        `;
-    } else {
-        gridEl.innerHTML = providers.map(provider => `
-            <div class="provider-card">
-                <div class="provider-header">
-                    <h3 class="provider-name">${provider.name}</h3>
-                    <span class="provider-professional">${provider.professional}</span>
-                </div>
-                <div class="provider-info">
-                    <p><strong>Descrição:</strong> ${provider.description}</p>
-                    <p><strong>Endereço:</strong> ${provider.address}</p>
-                </div>
-                <div class="provider-actions">
-                    <a href="tel:${provider.phone.replace(/\D/g,'')}" class="btn btn-small" style="background: #38a169;">
-                        📞 Ligar (${provider.phone})
-                    </a>
-                </div>
-            </div>
-        `).join('');
-    }
-
-    showPage('services-list');
 }
 
 
@@ -741,7 +955,6 @@ function handleVaccination(event) {
     const pet = pets.find(p => p.id === petId);
     if (!pet) return;
 
-    // Adiciona 1 dia para corrigir fuso horário do input[type=date]
     const correctDate = new Date(date);
     correctDate.setMinutes(correctDate.getMinutes() + correctDate.getTimezoneOffset());
     
@@ -762,9 +975,8 @@ function handleVaccination(event) {
 
     pet.vaccines.push(newVaccine);
     closeVaccinationModal();
-    openPetProfile(petId); // Reabre o perfil para mostrar a vacina adicionada
+    openPetProfile(petId); 
     
-    // Atualiza a grade 'Meus Pets' se ela estiver ativa
     if (document.getElementById('my-pets').classList.contains('active')) {
         loadMyPets();
     }
@@ -807,13 +1019,25 @@ function openPetProfile(petId) {
 
     let adoptionButton = '';
     if (pet.type === 'adoption' && pet.status === 'available' && !isOwner) {
-        adoptionButton = `
-            <div style="text-align: center; margin-top: 25px;">
-                <button class="btn" onclick="showContact(${pet.ownerId})" style="background: #38a169; width: auto; padding: 15px 30px;">
-                    💬 Entrar em Contato para Adoção
-                </button>
-            </div>
-        `;
+        
+        if (currentUser) {
+            adoptionButton = `
+                <div style="text-align: center; margin-top: 25px;">
+                    <button class="btn" onclick="showContact(${pet.ownerId})" style="background: #38a169; width: auto; padding: 15px 30px;">
+                        💬 Entrar em Contato para Adoção
+                    </button>
+                </div>
+            `;
+        } else {
+             adoptionButton = `
+                <div style="text-align: center; margin-top: 25px;">
+                    <button class="btn" onclick="showPage('login')" style="background: #a0aec0; width: auto; padding: 15px 30px;">
+                        Faça login para ver o contato
+                    </button>
+                </div>
+            `;
+        }
+
     } else if (isOwner && pet.type === 'adoption' && pet.status === 'available') {
          adoptionButton = `
             <div style="text-align: center; margin-top: 25px;">
@@ -938,8 +1162,6 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('registerForm').addEventListener('submit', handleRegister);
     document.getElementById('petRegisterForm').addEventListener('submit', handlePetRegistration);
     document.getElementById('vaccinationForm').addEventListener('submit', handleVaccination);
-    
-    // CORREÇÃO: ADICIONADO EVENT LISTENER PARA O FORMULÁRIO DE SERVIÇO
     document.getElementById('serviceRegisterForm').addEventListener('submit', handleServiceRegistration);
 
 
@@ -958,5 +1180,5 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Inicialização da aplicação
     updateAuthButtons();
-    loadAdoptionPets(); // Carrega os pets de adoção na página inicial
+    loadAdoptionPets(); 
 });
