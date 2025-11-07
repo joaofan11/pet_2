@@ -1,5 +1,9 @@
-// ==================== DADOS INICIAIS ====================
+// ===================================================================
+// 1. ESTADO DA APLICAÇÃO (Dados Mock)
+// ===================================================================
+
 let currentUser = null;
+
 let users = [
     {
         id: 1,
@@ -88,94 +92,81 @@ let pets = [
     }
 ];
 
-// ==================== DADOS DOS SERVIÇOS (ADICIONADO) ====================
-const servicesData = [
-    {
-        key: 'vet',
-        icon: '🩺',
-        title: 'Veterinários',
-        description: 'Encontre clínicas veterinárias e profissionais de saúde 24h perto de você.',
-        buttonText: 'Ver Profissionais'
-    },
-    {
-        key: 'sitter',
-        icon: '❤️',
-        title: 'Cuidadores (Pet Sitter)',
-        description: 'Viaje tranquilo! Deixe seu pet com cuidadores amorosos e responsáveis.',
-        buttonText: 'Ver Cuidadores'
-    },
-    {
-        key: 'walker',
-        icon: '🐕',
-        title: 'Passeadores (Dog Walker)',
-        description: 'Seu cãozinho cheio de energia? Contrate um passeador para uma rotina saudável.',
-        buttonText: 'Ver Passeadores'
-    },
-    {
-        key: 'transport',
-        icon: '🚐',
-        title: 'Transporte Pet',
-        description: 'Serviço especializado para transportar seu animal com segurança e conforto.',
-        buttonText: 'Ver Transporte'
-    }
-];
-
-// ==================== DADOS DOS PROVEDORES DE SERVIÇO (ADICIONADO) ====================
+// Corrigido: Havia duas declarações de 'serviceProviders'. Mantive a mais completa.
 const serviceProviders = [
     {
         id: 1,
+        ownerId: 1,
         category: 'vet',
         name: 'Clínica Vet. Vida Animal',
         professional: 'Dra. Ana Sousa',
         phone: '(92) 99999-1111',
         address: 'Av. Djalma Batista, 123 - Manaus, AM',
-        description: 'Atendimento 24h, emergências, vacinas e cirurgias.'
+        description: 'Atendimento 24h, emergências, vacinas e cirurgias.',
+        createdAt: new Date('2024-03-01')
     },
     {
         id: 2,
+        ownerId: 2,
         category: 'vet',
         name: 'PetSaúde Center',
         professional: 'Dr. Carlos Lima',
         phone: '(92) 98888-2222',
         address: 'Rua das Flores, 456 - Adrianópolis, Manaus, AM',
-        description: 'Especialista em dermatologia e nutrição animal.'
+        description: 'Especialista em dermatologia e nutrição animal.',
+        createdAt: new Date('2024-03-10')
     },
     {
         id: 3,
+        ownerId: 1,
         category: 'sitter',
         name: 'Lar Doce Pet',
         professional: 'Mariana Costa',
         phone: '(92) 97777-3333',
         address: 'Atendimento em domicílio (área central)',
-        description: 'Cuido do seu pet na sua casa, com carinho e responsabilidade. Envio fotos diárias.'
+        description: 'Cuido do seu pet na sua casa, com carinho e responsabilidade. Envio fotos diárias.',
+        createdAt: new Date('2024-02-15')
     },
     {
         id: 4,
+        ownerId: 2,
         category: 'walker',
         name: 'Manaus Dog Walker',
         professional: 'Bruno Almeida',
         phone: '(92) 96666-4444',
         address: 'Atende nos bairros Parque 10 e Adrianópolis',
-        description: 'Passeios educativos e com gasto de energia. Pacotes mensais disponíveis.'
+        description: 'Passeios educativos e com gasto de energia. Pacotes mensais disponíveis.',
+        createdAt: new Date('2024-02-20')
     },
     {
         id: 5,
+        ownerId: 1,
         category: 'transport',
         name: 'PetMóvel Manaus',
         professional: 'Carlos Logística Pet',
         phone: '(92) 95555-7777',
         address: 'Busca e entrega em toda Manaus',
-        description: 'Veículo climatizado e com caixas de transporte seguras. Transporte para banho, tosa e consultas.'
+        description: 'Veículo climatizado e com caixas de transporte seguras. Transporte para banho, tosa e consultas.',
+        createdAt: new Date('2024-03-05')
     }
 ];
-// ==================== FIM DOS NOVOS DADOS ====================
 
 
+// ===================================================================
+// 2. CONTADORES DE ID
+// ===================================================================
+
+// Corrigido: Havia duas declarações desses contadores.
 let nextUserId = 3;
 let nextPetId = 4;
 let nextVaccineId = 3;
+let nextServiceId = 6;
 
-// ==================== UTILITÁRIOS ====================
+
+// ===================================================================
+// 3. FUNÇÕES UTILITÁRIAS
+// ===================================================================
+
 function showMessage(elementId, message, type = 'success') {
     const messageEl = document.getElementById(elementId);
     messageEl.textContent = message;
@@ -220,7 +211,11 @@ function getGenderLabel(gender) {
     return gender === 'male' ? 'Macho' : 'Fêmea';
 }
 
-// ==================== NAVEGAÇÃO ====================
+
+// ===================================================================
+// 4. NAVEGAÇÃO E AUTENTICAÇÃO
+// ===================================================================
+
 function showPage(pageId) {
     document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
     document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
@@ -238,15 +233,13 @@ function showPage(pageId) {
         clickedBtn.classList.add('active');
     }
 
-    // LÓGICA DE CARREGAMENTO DE PÁGINA (MODIFICADO)
+    // Lógica de carregamento de página
     if (pageId === 'adoption') {
         loadAdoptionPets();
     } else if (pageId === 'my-pets') {
         loadMyPets();
     } else if (pageId === 'services') {
         loadServices();
-    } else if (pageId === 'services-list') {
-        // Não precisa fazer nada aqui, pois a showServiceProviders() já fez o trabalho
     }
 }
 
@@ -271,7 +264,6 @@ function updateAuthButtons() {
     }
 }
 
-// ==================== AUTENTICAÇÃO ====================
 function handleLogin(event) {
     event.preventDefault();
     const email = document.getElementById('loginEmail').value.trim();
@@ -343,7 +335,11 @@ function logout() {
     showPage('landing');
 }
 
-// ==================== PETS ====================
+
+// ===================================================================
+// 5. GERENCIAMENTO DE PETS
+// ===================================================================
+
 function handlePetRegistration(event) {
     event.preventDefault();
     
@@ -563,7 +559,11 @@ function clearFilters() {
     loadAdoptionPets();
 }
 
-// ==================== SERVIÇOS (ADICIONADO) ====================
+
+// ===================================================================
+// 6. GERENCIAMENTO DE SERVIÇOS
+// ===================================================================
+
 function loadServices() {
     const container = document.querySelector('#services .services-grid');
     if (!container) {
@@ -602,8 +602,21 @@ function showServiceProviders(categoryKey) {
     }
 
     const providers = serviceProviders.filter(p => p.category === categoryKey);
+    
+    // Assumindo que você tenha estes IDs no seu HTML (eles não estavam no HTML anterior)
     const titleEl = document.getElementById('servicesListTitle');
     const gridEl = document.getElementById('servicesProviderGrid');
+    
+    // Se os elementos acima não existirem, esta parte falhará.
+    // O código abaixo assume que eles existem.
+    if (!titleEl || !gridEl) {
+        console.error("Elementos 'servicesListTitle' ou 'servicesProviderGrid' não encontrados no HTML.");
+        // Como alternativa, podemos criar uma página dinamicamente, mas isso foge do escopo.
+        // Por enquanto, vamos apenas navegar para a página (que pode estar vazia).
+        showPage('services-list');
+        return;
+    }
+
 
     titleEl.textContent = category.title;
 
@@ -637,10 +650,73 @@ function showServiceProviders(categoryKey) {
 
     showPage('services-list');
 }
-// ==================== FIM DAS FUNÇÕES DE SERVIÇO ====================
 
 
-// ==================== MODAIS ====================
+// ===================================================================
+// 7. GERENCIAMENTO DE VACINAS
+// ===================================================================
+
+function handleVaccination(event) {
+    event.preventDefault();
+    
+    const petId = parseInt(document.getElementById('vaccinePetId').value);
+    const name = document.getElementById('vaccineName').value.trim();
+    const date = document.getElementById('vaccineDate').value;
+    const nextDate = document.getElementById('vaccineNext').value;
+    const vet = document.getElementById('vaccineVet').value.trim();
+    const notes = document.getElementById('vaccineNotes').value.trim();
+
+    if (!name || !date) {
+        alert('Por favor, preencha os campos obrigatórios.');
+        return;
+    }
+
+    const pet = pets.find(p => p.id === petId);
+    if (!pet) return;
+
+    const newVaccine = {
+        id: nextVaccineId++,
+        name,
+        date: new Date(date),
+        nextDate: nextDate ? new Date(nextDate) : null,
+        vet: vet || null,
+        notes: notes || null
+    };
+
+    pet.vaccines.push(newVaccine);
+    closeVaccinationModal();
+    openPetProfile(petId); // Reabre o perfil para mostrar a vacina adicionada
+    
+    // Atualiza a grade 'Meus Pets' se ela estiver ativa
+    if (document.getElementById('my-pets').classList.contains('active')) {
+        loadMyPets();
+    }
+}
+
+function getUpcomingVaccines(pet) {
+    const today = new Date();
+    const thirtyDaysFromNow = new Date(today.getTime() + (30 * 24 * 60 * 60 * 1000));
+    
+    return pet.vaccines.filter(vaccine => {
+        if (!vaccine.nextDate) return false;
+        const nextDate = new Date(vaccine.nextDate);
+        return nextDate >= today && nextDate <= thirtyDaysFromNow;
+    });
+}
+
+function isVaccineUpcoming(vaccine) {
+    if (!vaccine.nextDate) return false;
+    const today = new Date();
+    const thirtyDaysFromNow = new Date(today.getTime() + (30 * 24 * 60 * 60 * 1000));
+    const nextDate = new Date(vaccine.nextDate);
+    return nextDate >= today && nextDate <= thirtyDaysFromNow;
+}
+
+
+// ===================================================================
+// 8. GERENCIAMENTO DE MODAIS
+// ===================================================================
+
 function openPetProfile(petId) {
     const pet = pets.find(p => p.id === petId);
     if (!pet) return;
@@ -742,42 +818,6 @@ function closeVaccinationModal() {
     document.getElementById('vaccinationModal').classList.remove('active');
 }
 
-function handleVaccination(event) {
-    event.preventDefault();
-    
-    const petId = parseInt(document.getElementById('vaccinePetId').value);
-    const name = document.getElementById('vaccineName').value.trim();
-    const date = document.getElementById('vaccineDate').value;
-    const nextDate = document.getElementById('vaccineNext').value;
-    const vet = document.getElementById('vaccineVet').value.trim();
-    const notes = document.getElementById('vaccineNotes').value.trim();
-
-    if (!name || !date) {
-        alert('Por favor, preencha os campos obrigatórios.');
-        return;
-    }
-
-    const pet = pets.find(p => p.id === petId);
-    if (!pet) return;
-
-    const newVaccine = {
-        id: nextVaccineId++,
-        name,
-        date: new Date(date),
-        nextDate: nextDate ? new Date(nextDate) : null,
-        vet: vet || null,
-        notes: notes || null
-    };
-
-    pet.vaccines.push(newVaccine);
-    closeVaccinationModal();
-    openPetProfile(petId);
-    
-    if (document.getElementById('my-pets').classList.contains('active')) {
-        loadMyPets();
-    }
-}
-
 function showContact(ownerId) {
     const owner = users.find(u => u.id === ownerId);
     if (!owner) return;
@@ -808,33 +848,19 @@ function closeContactModal() {
     document.getElementById('contactModal').classList.remove('active');
 }
 
-// ==================== VACINAS UTILITÁRIOS ====================
-function getUpcomingVaccines(pet) {
-    const today = new Date();
-    const thirtyDaysFromNow = new Date(today.getTime() + (30 * 24 * 60 * 60 * 1000));
-    
-    return pet.vaccines.filter(vaccine => {
-        if (!vaccine.nextDate) return false;
-        const nextDate = new Date(vaccine.nextDate);
-        return nextDate >= today && nextDate <= thirtyDaysFromNow;
-    });
-}
 
-function isVaccineUpcoming(vaccine) {
-    if (!vaccine.nextDate) return false;
-    const today = new Date();
-    const thirtyDaysFromNow = new Date(today.getTime() + (30 * 24 * 60 * 60 * 1000));
-    const nextDate = new Date(vaccine.nextDate);
-    return nextDate >= today && nextDate <= thirtyDaysFromNow;
-}
+// ===================================================================
+// 9. INICIALIZAÇÃO E EVENT LISTENERS
+// ===================================================================
 
-// ==================== EVENT LISTENERS ====================
 document.addEventListener('DOMContentLoaded', function() {
+    // Formulários
     document.getElementById('loginForm').addEventListener('submit', handleLogin);
     document.getElementById('registerForm').addEventListener('submit', handleRegister);
     document.getElementById('petRegisterForm').addEventListener('submit', handlePetRegistration);
     document.getElementById('vaccinationForm').addEventListener('submit', handleVaccination);
 
+    // Fechar modais ao clicar fora
     document.querySelectorAll('.modal').forEach(modal => {
         modal.addEventListener('click', function(e) {
             if (e.target === modal) {
@@ -843,12 +869,11 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    updateAuthButtons();
-    loadAdoptionPets();
-    
+    // Define a data máxima para "data de aplicação" da vacina como hoje
     const today = new Date().toISOString().split('T')[0];
     document.getElementById('vaccineDate').max = today;
-});
 
-// ==================== INICIALIZAÇÃO ====================
-updateAuthButtons();
+    // Inicialização da aplicação
+    updateAuthButtons();
+    loadAdoptionPets(); // Carrega os pets de adoção na página inicial
+});
