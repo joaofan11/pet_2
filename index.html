@@ -122,9 +122,11 @@
 
         <div id="pet-register" class="page">
             <div class="form-container">
-                <h2 class="form-title">Cadastrar Pet</h2>
+                <h2 class="form-title" id="petFormTitle">Cadastrar Pet</h2>
                 <div id="petRegisterMessage" class="message"></div>
                 <form id="petRegisterForm">
+                    <input type="hidden" id="petEditId" name="petEditId">
+                    
                     <div class="form-group">
                         <label for="petPhoto">Foto do Pet</label>
                         <input type="file" id="petPhoto" name="photo" accept="image/*">
@@ -184,7 +186,13 @@
                         <label for="petDescription">Descrição</label>
                         <textarea id="petDescription" name="description" placeholder="Conte sobre a personalidade, cuidados especiais, histórico médico, etc." required></textarea>
                     </div>
-                    <button type="submit" class="btn">Cadastrar Pet</button>
+                    <button type="submit" class="btn" id="petFormButton">Cadastrar Pet</button>
+                
+                    <div id="deletePetButtonWrapper" style="display: none; margin-top: 20px;">
+                        <button type="button" class="btn btn-danger" onclick="deletePetFromForm()">
+                            Excluir Pet
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>
@@ -226,7 +234,7 @@
                     </div>
                     <div class="filter-group">
                         <label>📋 Ações</label>
-                        <button class="btn" onclick="showPage('pet-register')" style="width: 100%; padding: 12px 20px; font-size: 0.9rem;">
+                        <button class="btn" onclick="showPetRegisterPage(null)" style="width: 100%; padding: 12px 20px; font-size: 0.9rem;">
                             + Cadastrar Pet
                         </button>
                     </div>
@@ -240,7 +248,7 @@
             <div style="padding: 30px 40px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; flex-wrap: wrap; gap: 20px;">
                     <h2 style="color: #2d3748; font-size: 2.2rem; font-weight: 700;">Meus Pets</h2>
-                    <button class="btn" onclick="showPage('pet-register')" style="width: auto; padding: 15px 30px; font-size: 1rem;">
+                    <button class="btn" onclick="showPetRegisterPage(null)" style="width: auto; padding: 15px 30px; font-size: 1rem;">
                         + Adicionar Pet
                     </button>
                 </div>
@@ -255,11 +263,11 @@
                 <div class="filters">
                     <div class="filter-group">
                         <label>🔍 Buscar</label>
-                        <input type="text" id="serviceSearchFilter" placeholder="Nome do serviço ou profissional...">
+                        <input type="text" id="serviceSearchFilter" placeholder="Nome, profissional ou bairro..." onkeyup="filterServices()">
                     </div>
                     <div class="filter-group">
                         <label>🏷️ Categoria</label>
-                        <select id="serviceCategoryFilter">
+                        <select id="serviceCategoryFilter" onchange="filterServices()">
                             <option value="">Todas</option>
                             <option value="vet">Veterinários</option>
                             <option value="sitter">Cuidadores</option>
@@ -269,35 +277,23 @@
                     </div>
                     <div class="filter-group">
                         <label>📋 Ações</label>
-                        <button class="btn" onclick="showPage('service-register')" style="width: 100%; padding: 12px 20px; font-size: 0.9rem;">
+                        <button class="btn" onclick="showServiceRegisterPage(null)" style="width: 100%; padding: 12px 20px; font-size: 0.9rem;">
                             + Cadastrar Serviço
                         </button>
                     </div>
                 </div>
             </div>
-            <div id="servicesGrid" class="services-grid" style="padding: 30px;">
+            <div id="servicesGrid" class="pets-grid" style="padding: 30px;">
                 </div>
         </div>
         
-        <div id="services-list" class="page">
-            <div style="padding: 30px 40px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; flex-wrap: wrap; gap: 20px;">
-                    <h2 id="servicesListTitle" style="color: #2d3748; font-size: 2.2rem; font-weight: 700;">
-                        </h2>
-                    <button class="btn" onclick="showPage('services')" style="width: auto; padding: 15px 30px; font-size: 1rem; background: #718096;">
-                        &larr; Voltar para Serviços
-                    </button>
-                </div>
-                <div id="servicesProviderGrid" class="pets-grid">
-                    </div>
-            </div>
-        </div>
-
         <div id="service-register" class="page">
             <div class="form-container">
-                <h2 class="form-title">Cadastrar Serviço</h2>
+                <h2 class="form-title" id="serviceFormTitle">Cadastrar Serviço</h2>
                 <div id="serviceRegisterMessage" class="message"></div>
                 <form id="serviceRegisterForm">
+                    <input type="hidden" id="serviceEditId" name="serviceEditId">
+
                     <div class="form-group">
                         <label for="serviceCategory">Categoria</label>
                         <select id="serviceCategory" name="category" required>
@@ -328,7 +324,13 @@
                         <label for="serviceDescription">Descrição do Serviço</label>
                         <textarea id="serviceDescription" name="description" required placeholder="Descreva os serviços oferecidos, especialidades, horário de atendimento, etc."></textarea>
                     </div>
-                    <button type="submit" class="btn">Cadastrar Serviço</button>
+                    <button type="submit" class="btn" id="serviceFormButton">Cadastrar Serviço</button>
+                
+                    <div id="deleteServiceButtonWrapper" style="display: none; margin-top: 20px;">
+                        <button type="button" class="btn btn-danger" onclick="deleteServiceFromForm()">
+                            Excluir Serviço
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>
