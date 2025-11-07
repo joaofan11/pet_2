@@ -834,7 +834,63 @@ nav {
 }
 
 /* ===================================================================
-   7. MEDIA QUERIES (Responsivo)
+   7. ESTILOS PROVEDOR DE SERVIÇO (ADICIONADOS)
+   =================================================================== */
+
+.provider-card {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid #e2e8f0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 25px;
+}
+
+.provider-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+}
+
+.provider-header {
+    margin-bottom: 15px;
+}
+
+.provider-name {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 5px;
+    color: #2d3748;
+}
+
+.provider-professional {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #75b2c3;
+}
+
+.provider-info {
+    color: #4a5568;
+    line-height: 1.6;
+    margin-bottom: 20px;
+    flex-grow: 1;
+}
+
+.provider-info p {
+    margin-bottom: 10px;
+}
+
+.provider-actions .btn {
+    width: 100%;
+    flex-shrink: 0;
+}
+
+
+/* ===================================================================
+   8. MEDIA QUERIES (Responsivo)
    =================================================================== */
 
 @media (max-width: 768px) {
