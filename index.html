@@ -250,11 +250,11 @@
                 <div class="filters">
                     <div class="filter-group">
                         <label>🔍 Buscar</label>
-                        <input type="text" id="serviceSearchFilter" placeholder="Nome do serviço ou profissional..." onkeyup="filterServices()">
+                        <input type="text" id="serviceSearchFilter" placeholder="Nome do serviço ou profissional...">
                     </div>
                     <div class="filter-group">
                         <label>🏷️ Categoria</label>
-                        <select id="serviceCategoryFilter" onchange="filterServices()">
+                        <select id="serviceCategoryFilter">
                             <option value="">Todas</option>
                             <option value="vet">Veterinários</option>
                             <option value="sitter">Cuidadores (Pet Sitter)</option>
@@ -270,10 +270,23 @@
                     </div>
                 </div>
             </div>
-            <div id="servicesGrid" class="pets-grid">
+            <div id="servicesGrid" class="services-grid" style="padding: 30px;">
                 </div>
         </div>
-
+        
+        <div id="services-list" class="page">
+            <div style="padding: 30px 40px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; flex-wrap: wrap; gap: 20px;">
+                    <h2 id="servicesListTitle" style="color: #2d3748; font-size: 2.2rem; font-weight: 700;">
+                        </h2>
+                    <button class="btn" onclick="showPage('services')" style="width: auto; padding: 15px 30px; font-size: 1rem; background: #718096;">
+                        &larr; Voltar para Serviços
+                    </button>
+                </div>
+                <div id="servicesProviderGrid" class="pets-grid">
+                    </div>
+            </div>
+        </div>
         <div id="service-register" class="page">
             <div class="form-container">
                 <h2 class="form-title">Cadastrar Serviço</h2>
@@ -341,7 +354,7 @@
                         <input type="date" id="vaccineNext" name="nextDate">
                     </div>
                     <div class="form-group">
-                        <label for="vaccineVet">Veterinário</label>
+                        <label for="vaccineVet">VeterinÁrio</label>
                         <input type="text" id="vaccineVet" name="vet" placeholder="Nome do veterinário ou clínica">
                     </div>
                     <div class="form-group">
@@ -361,6 +374,8 @@
             </div>
         </div>
 
-    </div> <script src="script.js"></script>
+    </div> 
+    
+    <script src="script.js"></script>
 </body>
 </html>
