@@ -88,6 +88,89 @@ let pets = [
     }
 ];
 
+// ==================== DADOS DOS SERVIÇOS (ADICIONADO) ====================
+const servicesData = [
+    {
+        key: 'vet',
+        icon: '🩺',
+        title: 'Veterinários',
+        description: 'Encontre clínicas veterinárias e profissionais de saúde 24h perto de você.',
+        buttonText: 'Ver Profissionais'
+    },
+    {
+        key: 'sitter',
+        icon: '❤️',
+        title: 'Cuidadores (Pet Sitter)',
+        description: 'Viaje tranquilo! Deixe seu pet com cuidadores amorosos e responsáveis.',
+        buttonText: 'Ver Cuidadores'
+    },
+    {
+        key: 'walker',
+        icon: '🐕',
+        title: 'Passeadores (Dog Walker)',
+        description: 'Seu cãozinho cheio de energia? Contrate um passeador para uma rotina saudável.',
+        buttonText: 'Ver Passeadores'
+    },
+    {
+        key: 'transport',
+        icon: '🚐',
+        title: 'Transporte Pet',
+        description: 'Serviço especializado para transportar seu animal com segurança e conforto.',
+        buttonText: 'Ver Transporte'
+    }
+];
+
+// ==================== DADOS DOS PROVEDORES DE SERVIÇO (ADICIONADO) ====================
+const serviceProviders = [
+    {
+        id: 1,
+        category: 'vet',
+        name: 'Clínica Vet. Vida Animal',
+        professional: 'Dra. Ana Sousa',
+        phone: '(92) 99999-1111',
+        address: 'Av. Djalma Batista, 123 - Manaus, AM',
+        description: 'Atendimento 24h, emergências, vacinas e cirurgias.'
+    },
+    {
+        id: 2,
+        category: 'vet',
+        name: 'PetSaúde Center',
+        professional: 'Dr. Carlos Lima',
+        phone: '(92) 98888-2222',
+        address: 'Rua das Flores, 456 - Adrianópolis, Manaus, AM',
+        description: 'Especialista em dermatologia e nutrição animal.'
+    },
+    {
+        id: 3,
+        category: 'sitter',
+        name: 'Lar Doce Pet',
+        professional: 'Mariana Costa',
+        phone: '(92) 97777-3333',
+        address: 'Atendimento em domicílio (área central)',
+        description: 'Cuido do seu pet na sua casa, com carinho e responsabilidade. Envio fotos diárias.'
+    },
+    {
+        id: 4,
+        category: 'walker',
+        name: 'Manaus Dog Walker',
+        professional: 'Bruno Almeida',
+        phone: '(92) 96666-4444',
+        address: 'Atende nos bairros Parque 10 e Adrianópolis',
+        description: 'Passeios educativos e com gasto de energia. Pacotes mensais disponíveis.'
+    },
+    {
+        id: 5,
+        category: 'transport',
+        name: 'PetMóvel Manaus',
+        professional: 'Carlos Logística Pet',
+        phone: '(92) 95555-7777',
+        address: 'Busca e entrega em toda Manaus',
+        description: 'Veículo climatizado e com caixas de transporte seguras. Transporte para banho, tosa e consultas.'
+    }
+];
+// ==================== FIM DOS NOVOS DADOS ====================
+
+
 let nextUserId = 3;
 let nextPetId = 4;
 let nextVaccineId = 3;
@@ -155,44 +238,15 @@ function showPage(pageId) {
         clickedBtn.classList.add('active');
     }
 
+    // LÓGICA DE CARREGAMENTO DE PÁGINA (MODIFICADO)
     if (pageId === 'adoption') {
         loadAdoptionPets();
     } else if (pageId === 'my-pets') {
         loadMyPets();
     } else if (pageId === 'services') {
-function loadServices() {
-    // Encontra o container onde os cards de serviço serão inseridos
-    const container = document.querySelector('#services .services-grid');
-    
-    // Verifica se o container existe
-    if (!container) {
-        console.error("Container de serviços não encontrado!");
-        return;
-    }
-
-    // Verifica se há serviços para mostrar
-    if (servicesData.length === 0) {
-        // Se não houver serviços, mostra uma mensagem de "vazio"
-        container.innerHTML = `
-            <div class="empty-state">
-                <div class="empty-state-icon">🛠️</div>
-                <h3>Nenhum serviço disponível</h3>
-                <p>No momento, não há serviços para exibir. Volte em breve!</p>
-            </div>
-        `;
-        return;
-    }
-
-    // Cria o HTML para cada serviço usando map() e junta tudo com join()
-    container.innerHTML = servicesData.map(service => `
-        <div class="service-card">
-            <span class="service-icon">${service.icon}</span>
-            <h3>${service.title}</h3>
-            <p>${service.description}</p>
-            <button class="btn btn-small" style="margin-top: 20px;">${service.buttonText}</button>
-        </div>
-    `).join('');
-}
+        loadServices();
+    } else if (pageId === 'services-list') {
+        // Não precisa fazer nada aqui, pois a showServiceProviders() já fez o trabalho
     }
 }
 
@@ -509,6 +563,83 @@ function clearFilters() {
     loadAdoptionPets();
 }
 
+// ==================== SERVIÇOS (ADICIONADO) ====================
+function loadServices() {
+    const container = document.querySelector('#services .services-grid');
+    if (!container) {
+        console.error("Container de serviços não encontrado!");
+        return;
+    }
+
+    if (servicesData.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-state-icon">🛠️</div>
+                <h3>Nenhum serviço disponível</h3>
+                <p>No momento, não há serviços para exibir. Volte em breve!</p>
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = servicesData.map(service => `
+        <div class="service-card">
+            <span class="service-icon">${service.icon}</span>
+            <h3>${service.title}</h3>
+            <p>${service.description}</p>
+            <button class="btn btn-small" style="margin-top: 20px;" onclick="showServiceProviders('${service.key}')">
+                ${service.buttonText}
+            </button>
+        </div>
+    `).join('');
+}
+
+function showServiceProviders(categoryKey) {
+    const category = servicesData.find(s => s.key === categoryKey);
+    if (!category) {
+        console.error("Categoria não encontrada:", categoryKey);
+        return;
+    }
+
+    const providers = serviceProviders.filter(p => p.category === categoryKey);
+    const titleEl = document.getElementById('servicesListTitle');
+    const gridEl = document.getElementById('servicesProviderGrid');
+
+    titleEl.textContent = category.title;
+
+    if (providers.length === 0) {
+        gridEl.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-state-icon">🤷</div>
+                <h3>Nenhum profissional encontrado</h3>
+                <p>Ainda não temos profissionais cadastrados para "${category.title}". Volte em breve!</p>
+            </div>
+        `;
+    } else {
+        gridEl.innerHTML = providers.map(provider => `
+            <div class="provider-card">
+                <div class="provider-header">
+                    <h3 class="provider-name">${provider.name}</h3>
+                    <span class="provider-professional">${provider.professional}</span>
+                </div>
+                <div class="provider-info">
+                    <p><strong>Descrição:</strong> ${provider.description}</p>
+                    <p><strong>Endereço:</strong> ${provider.address}</p>
+                </div>
+                <div class="provider-actions">
+                    <a href="tel:${provider.phone}" class="btn btn-small" style="background: #38a169;">
+                        📞 Ligar (${provider.phone})
+                    </a>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    showPage('services-list');
+}
+// ==================== FIM DAS FUNÇÕES DE SERVIÇO ====================
+
+
 // ==================== MODAIS ====================
 function openPetProfile(petId) {
     const pet = pets.find(p => p.id === petId);
@@ -720,5 +851,4 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // ==================== INICIALIZAÇÃO ====================
-
 updateAuthButtons();
