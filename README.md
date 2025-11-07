@@ -27,5 +27,7 @@ Este projeto é construído inteiramente com tecnologias front-end e não utiliz
 
 Basta abrir o arquivo `index.html` em qualquer navegador web moderno.
 
+Login de teste: email: joao@email.com senha: 123456
+
 ---
 Desenvolvido pelo Time NoRest
