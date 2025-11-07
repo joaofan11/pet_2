@@ -182,6 +182,35 @@ const serviceProviders = [
     }
 ];
 
+// =============================================
+// ============   NOVOS DADOS BLOG   ===========
+// =============================================
+let blogPosts = [
+    {
+        id: 1,
+        ownerId: 1,
+        content: "Primeiro post no PetPlus! 🐶\nA Luna está adorando o parque novo, aqui em Manaus.",
+        photo: null, 
+        location: "Parque dos Bilhares, Manaus",
+        createdAt: new Date('2024-05-10T09:30:00'),
+        likes: [2], // Curtido pelo João (ID 2)
+        comments: [
+            { id: 1, ownerId: 2, content: "Que legal! 😃", createdAt: new Date('2024-05-10T11:00:00') }
+        ]
+    },
+    {
+        id: 2,
+        ownerId: 2,
+        content: "O Mimi é o gato mais preguiçoso que eu conheço. 🐱💤\nSó quer saber de dormir o dia todo.",
+        photo: null,
+        location: "Em casa",
+        createdAt: new Date('2024-05-09T15:00:00'),
+        likes: [1, 2], // Curtido pela Beatriz (ID 1) e João (ID 2)
+        comments: []
+    }
+];
+// =============================================
+
 
 // ===================================================================
 // 2. CONTADORES DE ID
@@ -191,6 +220,13 @@ let nextUserId = 3;
 let nextPetId = 4;
 let nextVaccineId = 3;
 let nextServiceId = 6;
+
+// =============================================
+// ============   NOVOS CONTADORES ID   ========
+// =============================================
+let nextPostId = 3;
+let nextCommentId = 2; // Começa depois do comentário mockado
+// =============================================
 
 
 // ===================================================================
@@ -211,6 +247,21 @@ function formatDate(date) {
     if (!date) return 'Data inválida';
     return new Date(date).toLocaleDateString('pt-BR', { timeZone: 'UTC' });
 }
+
+// =============================================
+// ============   NOVA FUNÇÃO UTIL   ===========
+// =============================================
+function formatDateTime(date) {
+    if (!date) return 'Data inválida';
+    return new Date(date).toLocaleString('pt-BR', { 
+        day: '2-digit', 
+        month: '2-digit', 
+        year: 'numeric', 
+        hour: '2-digit', 
+        minute: '2-digit' 
+    });
+}
+// =============================================
 
 function getSpeciesIcon(species) {
     const icons = {
@@ -273,6 +324,13 @@ function showPage(pageId) {
     } else if (pageId === 'services') {
         loadServices();
     }
+    // =============================================
+    // ===========   NOVO CARREGAMENTO   ===========
+    // =============================================
+    else if (pageId === 'blog') {
+        loadBlogPosts();
+    }
+    // =============================================
 }
 
 function updateAuthButtons() {
@@ -1153,7 +1211,363 @@ function closeContactModal() {
 
 
 // ===================================================================
-// 9. INICIALIZAÇÃO E EVENT LISTENERS
+// 9. GERENCIAMENTO DO BLOG (SEÇÃO ATUALIZADA)
+// ===================================================================
+
+/**
+ * (NOVA FUNÇÃO) Controla a visibilidade do formulário de novo post.
+ */
+function toggleNewPostForm(show) {
+    const postContainer = document.getElementById('new-post-container');
+    const blogActions = document.getElementById('blog-actions');
+
+    if (show) {
+        postContainer.style.display = 'block';
+        blogActions.style.display = 'none';
+        showPostForm(null); // Garante que o formulário está limpo
+        postContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    } else {
+        postContainer.style.display = 'none';
+        blogActions.style.display = 'block';
+    }
+}
+
+/**
+ * Carrega e exibe os posts do blog.
+ * Mostra o *botão* de postagem se o usuário estiver logado.
+ */
+function loadBlogPosts() {
+    const postContainer = document.getElementById('new-post-container');
+    const blogActions = document.getElementById('blog-actions'); // Botão "Novo Post"
+    const feedContainer = document.getElementById('blogFeed');
+
+    if (currentUser) {
+        blogActions.style.display = 'block';
+        // Garante que o formulário esteja oculto ao carregar a página
+        if (!document.getElementById('postEditId').value) { // Só oculta se não estiver editando
+             postContainer.style.display = 'none';
+        }
+    } else {
+        blogActions.style.display = 'none';
+        postContainer.style.display = 'none';
+    }
+
+    // Ordena os posts por data, do mais recente para o mais antigo
+    const sortedPosts = blogPosts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    
+    displayBlogPosts(sortedPosts, feedContainer);
+}
+
+/**
+ * Renderiza a lista de posts no container especificado.
+ * (ATUALIZADO com Likes e Comentários)
+ */
+function displayBlogPosts(posts, container) {
+    if (posts.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-state-icon">📣</div>
+                <h3>Ainda não há posts</h3>
+                <p>Seja o primeiro a postar! Faça login e compartilhe algo.</p>
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = posts.map(post => {
+        const owner = users.find(u => u.id === post.ownerId);
+        const isOwner = currentUser && currentUser.id === post.ownerId;
+
+        // Lida com a imagem do post
+        const postImageHTML = post.photo 
+            ? `<img src="${post.photo}" alt="Foto do post" class="post-image">` 
+            : '';
+
+        // Lida com a localização
+        const postLocationHTML = post.location 
+            ? `<div class="post-location">📍 ${post.location}</div>` 
+            : '';
+
+        // Botão de editar (só para o dono)
+        const editButtonHTML = isOwner
+            ? `<button class="post-actions-btn" onclick="showPostForm(${post.id})">Editar</button>`
+            : '';
+
+        // Avatar com a primeira letra do nome
+        const avatarLetter = owner ? owner.name.charAt(0).toUpperCase() : '?';
+
+        // --- LIKES LOGIC ---
+        const userHasLiked = currentUser && post.likes.includes(currentUser.id);
+        const likeBtnActive = userHasLiked ? 'active' : '';
+        const likeCount = post.likes.length;
+        const likeText = likeCount === 1 ? 'curtida' : 'curtidas';
+
+        // --- COMMENTS LOGIC ---
+        const commentsHTML = post.comments
+            .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt)) // Ordena comentários (antigo p/ novo)
+            .map(comment => {
+                const commentOwner = users.find(u => u.id === comment.ownerId);
+                return `
+                    <div class="comment-item">
+                        <strong class="comment-author">${commentOwner ? commentOwner.name : 'Usuário'}</strong>
+                        <p class="comment-content">${comment.content}</p>
+                    </div>
+                `;
+            }).join('');
+
+        // --- COMMENT FORM (if logged in) ---
+        const commentFormHTML = currentUser ? `
+            <form class="post-comment-form" onsubmit="handleCommentSubmit(event, ${post.id})">
+                <input type="text" class="comment-input" placeholder="Escreva um comentário..." required>
+                <button type="submit" class="comment-submit-btn">Enviar</button>
+            </form>
+        ` : '';
+
+        return `
+            <div class="post-card">
+                <div class="post-header">
+                    <div class="post-author-info">
+                        <div class="post-author-avatar">${avatarLetter}</div>
+                        <div class="post-author-details">
+                            <span class="post-author-name">${owner ? owner.name : 'Usuário Anônimo'}</span>
+                            <span class="post-date">${formatDateTime(post.createdAt)}</span>
+                        </div>
+                    </div>
+                    <div class="post-actions-menu">
+                        ${editButtonHTML}
+                    </div>
+                </div>
+                <div class="post-body">
+                    <div class="post-content">${post.content}</div>
+                    ${postLocationHTML}
+                    ${postImageHTML}
+                </div>
+                <div class="post-footer">
+                    <button class="like-btn ${likeBtnActive}" onclick="toggleLike(${post.id})">
+                        ❤️ Curtir
+                    </button>
+                    <span class="like-count">${likeCount} ${likeText}</span>
+                </div>
+
+                <div class="post-comments">
+                    <div class="post-comments-list">
+                        ${commentsHTML.length > 0 ? commentsHTML : '<p style="font-size: 0.9rem; color: #718096; text-align: center; padding: 10px 0;">Seja o primeiro a comentar!</p>'}
+                    </div>
+                    ${commentFormHTML}
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+/**
+ * Prepara o formulário de post para criar ou editar.
+ * (ATUALIZADO para mostrar o container)
+ */
+function showPostForm(postId = null) {
+    const form = document.getElementById('postForm');
+    const title = document.getElementById('postFormTitle');
+    const button = document.getElementById('postFormButton');
+    const hiddenId = document.getElementById('postEditId');
+    const deleteButtonWrapper = document.getElementById('deletePostButtonWrapper');
+    const photoInput = document.getElementById('postPhoto');
+    
+    // Mostra o container do formulário e esconde o botão "Novo Post"
+    document.getElementById('new-post-container').style.display = 'block';
+    document.getElementById('blog-actions').style.display = 'none';
+
+    form.reset();
+    photoInput.value = ''; // Limpa o input de arquivo
+
+    if (postId === null) {
+        // Modo "Novo Post"
+        title.textContent = 'Novo Post';
+        button.textContent = 'Publicar';
+        hiddenId.value = '';
+        deleteButtonWrapper.style.display = 'none';
+    } else {
+        // Modo "Editar Post"
+        const post = blogPosts.find(p => p.id === postId);
+        if (post && post.ownerId === currentUser.id) {
+            title.textContent = 'Editar Post';
+            button.textContent = 'Atualizar';
+            hiddenId.value = post.id;
+            deleteButtonWrapper.style.display = 'flex'; // Mostra botões de excluir/cancelar
+
+            // Preenche o formulário
+            document.getElementById('postContent').value = post.content;
+            document.getElementById('postLocation').value = post.location;
+            
+            // Rola a página até o formulário de edição
+            document.getElementById('new-post-container').scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+        } else {
+            alert("Post não encontrado ou você não tem permissão para editá-lo.");
+            toggleNewPostForm(false); // Esconde o form se der erro
+            return;
+        }
+    }
+}
+
+/**
+ * Lida com a submissão do formulário de post (novo ou edição).
+ * (ATUALIZADO para incluir likes/comments e esconder o form)
+ */
+function handlePostSubmit(event) {
+    event.preventDefault();
+    
+    if (!currentUser) {
+        showMessage('postMessage', 'Você precisa estar logado para postar.', 'error');
+        return;
+    }
+
+    const content = document.getElementById('postContent').value.trim();
+    const location = document.getElementById('postLocation').value.trim();
+    const photoFile = document.getElementById('postPhoto').files[0];
+    const postId = document.getElementById('postEditId').value;
+    let photoURL = null;
+
+    if (!content) {
+        showMessage('postMessage', 'O conteúdo do post não pode estar vazio.', 'error');
+        return;
+    }
+    
+    if (photoFile) {
+        photoURL = URL.createObjectURL(photoFile);
+    }
+
+    if (postId) {
+        // Atualizar Post Existente
+        const postToUpdate = blogPosts.find(p => p.id === parseInt(postId));
+        if (postToUpdate && postToUpdate.ownerId === currentUser.id) {
+            
+            postToUpdate.content = content;
+            postToUpdate.location = location;
+            
+            if(photoURL) {
+                postToUpdate.photo = photoURL;
+            }
+
+            showMessage('postMessage', 'Post atualizado com sucesso!', 'success');
+        } else {
+            showMessage('postMessage', 'Erro ao atualizar. Post não encontrado.', 'error');
+        }
+
+    } else {
+        // Criar Novo Post
+        const newPost = {
+            id: nextPostId++,
+            ownerId: currentUser.id,
+            content: content,
+            photo: photoURL,
+            location: location,
+            createdAt: new Date(),
+            likes: [],      // (NOVO)
+            comments: []    // (NOVO)
+        };
+
+        blogPosts.push(newPost);
+        showMessage('postMessage', 'Post publicado com sucesso!', 'success');
+    }
+
+    // Limpa o formulário, esconde-o e recarrega o feed
+    toggleNewPostForm(false); // Esconde o form e mostra o botão "+ Novo Post"
+    loadBlogPosts(); // Recarrega o feed
+}
+
+/**
+ * Exclui um post a partir do formulário de edição.
+ * (ATUALIZADO para esconder o form)
+ */
+function deletePostFromForm() {
+    const postId = document.getElementById('postEditId').value;
+    if (!postId) return;
+
+    if (confirm("Tem certeza de que deseja excluir este post? Esta ação não pode ser desfeita.")) {
+        const postIndex = blogPosts.findIndex(p => p.id === parseInt(postId));
+        
+        if (postIndex === -1) {
+            alert("Erro: Post não encontrado.");
+            return;
+        }
+
+        if (blogPosts[postIndex].ownerId !== currentUser.id) {
+            alert("Você não tem permissão para excluir este post.");
+            return;
+        }
+
+        // Remove o post do array
+        blogPosts.splice(postIndex, 1);
+        
+        // Esconde o formulário e recarrega o feed
+        toggleNewPostForm(false);
+        loadBlogPosts();
+    }
+}
+
+/**
+ * (NOVA FUNÇÃO) Adiciona ou remove um like de um post.
+ */
+function toggleLike(postId) {
+    if (!currentUser) {
+        showPage('login');
+        return;
+    }
+
+    const post = blogPosts.find(p => p.id === postId);
+    if (!post) return;
+
+    const userId = currentUser.id;
+    const likeIndex = post.likes.indexOf(userId);
+
+    if (likeIndex > -1) {
+        // Usuário já curtiu, então remove o like
+        post.likes.splice(likeIndex, 1);
+    } else {
+        // Usuário ainda não curtiu, então adiciona o like
+        post.likes.push(userId);
+    }
+
+    // Recarrega os posts para atualizar a contagem de likes e o estado do botão
+    loadBlogPosts();
+}
+
+/**
+ * (NOVA FUNÇÃO) Adiciona um novo comentário a um post.
+ */
+function handleCommentSubmit(event, postId) {
+    event.preventDefault();
+    if (!currentUser) {
+        showPage('login');
+        return;
+    }
+
+    const form = event.target;
+    const input = form.querySelector('.comment-input');
+    const content = input.value.trim();
+
+    if (!content) return; // Não envia comentário vazio
+
+    const post = blogPosts.find(p => p.id === postId);
+    if (!post) return;
+
+    const newComment = {
+        id: nextCommentId++,
+        ownerId: currentUser.id,
+        content: content,
+        createdAt: new Date()
+    };
+
+    post.comments.push(newComment);
+
+    // Limpa o input e recarrega o feed
+    input.value = '';
+    loadBlogPosts();
+}
+
+
+// ===================================================================
+// 10. INICIALIZAÇÃO E EVENT LISTENERS
 // ===================================================================
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -1164,6 +1578,11 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('vaccinationForm').addEventListener('submit', handleVaccination);
     document.getElementById('serviceRegisterForm').addEventListener('submit', handleServiceRegistration);
 
+    // =============================================
+    // ===========   NOVO LISTENER   ===============
+    // =============================================
+    document.getElementById('postForm').addEventListener('submit', handlePostSubmit);
+    // =============================================
 
     // Fechar modais ao clicar fora
     document.querySelectorAll('.modal').forEach(modal => {

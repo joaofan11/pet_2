@@ -24,6 +24,8 @@
                     <button class="nav-btn active" onclick="showPage('landing')">Home</button>
                     <button class="nav-btn" onclick="showPage('adoption')">Adotar</button>
                     <button class="nav-btn" onclick="showPage('services')">Serviços</button>
+                    
+                    <button class="nav-btn" onclick="showPage('blog')">Blog</button>
                     <button class="nav-btn" onclick="showPage('my-pets')" id="myPetsBtn" style="display: none;">Meus Pets</button>
                     <button class="nav-btn" onclick="showPage('login')" id="loginBtn">Entrar</button>
                     <button class="nav-btn" onclick="logout()" id="logoutBtn" style="display: none;">Sair</button>
@@ -335,6 +337,55 @@
             </div>
         </div>
 
+        <div id="blog" class="page">
+            <div style="padding: 30px 40px 0;">
+                <h2 style="text-align: center; margin-bottom: 40px; color: #2d3748; font-size: 2.2rem; font-weight: 700;">Blog PetPlus</h2>
+                
+                <div id="blog-actions" style="display: none; text-align: center; margin-bottom: 30px;">
+                    <button class="btn" onclick="toggleNewPostForm(true)">+ Escrever Novo Post</button>
+                </div>
+
+                <div id="new-post-container" style="display: none; margin-bottom: 40px;">
+                    <div class="form-container" style="max-width: 800px; padding: 40px; border: 1px solid #e2e8f0; border-radius: 20px; background: #f7fafc;">
+                        <h2 class="form-title" id="postFormTitle" style="font-size: 1.8rem; margin-bottom: 30px;">Novo Post</h2>
+                        <div id="postMessage" class="message"></div>
+                        <form id="postForm">
+                            <input type="hidden" id="postEditId" name="postEditId">
+                            
+                            <div class="form-group">
+                                <label for="postContent">O que está acontecendo?</label>
+                                <textarea id="postContent" name="content" required placeholder="Escreva seu post aqui... (estilo tweet)" maxlength="280"></textarea>
+                            </div>
+                            
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                                <div class="form-group">
+                                    <label for="postPhoto">Adicionar Foto</label>
+                                    <input type="file" id="postPhoto" name="photo" accept="image/*" style="padding: 12px 15px;">
+                                </div>
+                                <div class="form-group">
+                                    <label for="postLocation">Localização</label>
+                                    <input type="text" id="postLocation" name="location" placeholder="Ex: Manaus, AM">
+                                </div>
+                            </div>
+                            
+                            <button type="submit" class="btn" id="postFormButton">Publicar</button>
+                        
+                            <div id="deletePostButtonWrapper" style="display: none; margin-top: 20px; display: flex; gap: 10px;">
+                                <button type="button" class="btn btn-danger" onclick="deletePostFromForm()">
+                                    Excluir Post
+                                </button>
+                                <button type="button" class="btn btn-secondary" onclick="toggleNewPostForm(false)">
+                                    Cancelar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div id="blogFeed" class="blog-feed">
+                    </div>
+            </div>
+        </div>
         <div id="petModal" class="modal">
             <div class="modal-content">
                 <span class="close" onclick="closePetModal()">&times;</span>
@@ -382,7 +433,8 @@
             </div>
         </div>
 
-    </div> <footer>
+    </div> 
+    <footer>
         <p>Desenvolvido pelo Time NoRest</p>
     </footer>
     <script src="script.js"></script>

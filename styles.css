@@ -889,7 +889,235 @@ nav {
 }
 
 /* ===================================================================
-   8. RODAPÉ (ADICIONADO)
+   8. ESTILOS DO BLOG (NOVA SEÇÃO)
+   =================================================================== */
+
+.blog-feed {
+    max-width: 800px; /* Mais largo para um feed */
+    margin: 30px auto;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    padding-bottom: 40px; /* Espaço no final */
+}
+
+.post-card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+    border: 1px solid #e2e8f0;
+    overflow: hidden;
+    /* Animação sutil ao carregar */
+    animation: slideIn 0.5s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+.post-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 20px 25px 15px;
+}
+
+.post-author-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.post-author-avatar {
+    font-size: 1.5rem;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #75b2c3, #80b37a);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+}
+
+.post-author-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.post-author-name {
+    font-weight: 700;
+    color: #2d3748;
+    font-size: 1.1rem;
+}
+
+.post-date {
+    font-size: 0.85rem;
+    color: #718096;
+}
+
+.post-actions-btn {
+    background: transparent;
+    border: 2px solid #e2e8f0;
+    color: #4a5568;
+    padding: 8px 16px;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+.post-actions-btn:hover {
+    background: #f7fafc;
+    border-color: #75b2c3;
+    color: #75b2c3;
+}
+
+.post-body {
+    padding: 0 25px 25px;
+}
+
+.post-content {
+    color: #1a202c;
+    line-height: 1.7;
+    margin-bottom: 15px;
+    font-size: 1rem;
+    /* Garante que quebras de linha do textarea sejam mantidas */
+    white-space: pre-wrap; 
+}
+
+.post-location {
+    font-size: 0.9rem;
+    color: #718096;
+    margin-top: 15px;
+    display: inline-block;
+    padding: 5px 10px;
+    background: #f7fafc;
+    border-radius: 8px;
+}
+
+.post-image {
+    width: 100%;
+    max-height: 500px; /* Limita altura da imagem */
+    object-fit: cover;
+    margin-top: 20px;
+    border-radius: 15px; /* Bordas arredondadas na imagem */
+}
+
+/* --- LIKES E COMENTÁRIOS --- */
+
+.post-footer {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px 25px;
+    border-top: 1px solid #f7fafc;
+}
+
+.like-btn {
+    background: #f7fafc;
+    border: 2px solid #e2e8f0;
+    color: #4a5568;
+    padding: 8px 16px;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.like-btn:hover {
+    background: #edf2f7;
+    border-color: #cbd5e0;
+}
+
+/* Estilo do botão quando está "curtido" */
+.like-btn.active {
+    background: #fed7d7; /* Fundo vermelho claro */
+    border-color: #f56565; /* Borda vermelha */
+    color: #c53030; /* Texto vermelho escuro */
+}
+
+.like-count {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #718096;
+}
+
+.post-comments {
+    padding: 0 25px 25px;
+    border-top: 1px solid #edf2f7;
+    background: #fcfcfc; /* Fundo levemente diferente */
+}
+
+.post-comments-list {
+    max-height: 300px; /* Limita a altura da lista de comentários */
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 20px 0;
+}
+
+.comment-item {
+    background: #f7fafc;
+    padding: 12px 15px;
+    border-radius: 12px;
+    border-left: 3px solid #75b2c3;
+    font-size: 0.9rem;
+}
+
+.comment-author {
+    display: block;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 3px;
+}
+
+.comment-content {
+    color: #4a5568;
+    line-height: 1.5;
+    word-wrap: break-word; /* Garante que comentários longos quebrem a linha */
+}
+
+.post-comment-form {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+    padding-top: 15px;
+    border-top: 1px solid #edf2f7;
+}
+
+.comment-input {
+    flex-grow: 1; /* Ocupa o espaço disponível */
+    padding: 12px 15px;
+    border: 2px solid #e2e8f0;
+    border-radius: 30px; /* Input arredondado */
+    font-size: 0.9rem;
+    background: white;
+}
+
+.comment-input:focus {
+    outline: none;
+    border-color: #75b2c3;
+}
+
+.comment-submit-btn {
+    padding: 10px 18px;
+    border-radius: 30px;
+    border: none;
+    background: linear-gradient(135deg, #75b2c3, #80b37a);
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.comment-submit-btn:hover {
+    transform: scale(1.05);
+}
+
+
+/* ===================================================================
+   9. RODAPÉ
    =================================================================== */
 
 footer {
@@ -903,7 +1131,7 @@ footer {
 }
 
 /* ===================================================================
-   9. MEDIA QUERIES (Responsivo)
+   10. MEDIA QUERIES (Responsivo)
    =================================================================== */
 
 @media (max-width: 768px) {
@@ -935,5 +1163,18 @@ footer {
     .pets-grid {
         grid-template-columns: 1fr;
         padding: 20px;
+    }
+
+    /* --- BLOG RESPONSIVO --- */
+    .blog-feed {
+        padding: 0 10px 30px; /* Menos padding no mobile */
+    }
+
+    .post-header {
+        padding: 15px 20px 10px;
+    }
+
+    .post-body {
+        padding: 0 20px 20px;
     }
 }
