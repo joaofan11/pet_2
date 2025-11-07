@@ -419,7 +419,7 @@ nav {
 /* --- Features Grid (Landing) --- */
 .features {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    grid-template-columns: repeat(4, 1fr);
     gap: 40px;
     padding: 80px 40px;
     background: linear-gradient(to bottom, #f7fafc, #edf2f7);
