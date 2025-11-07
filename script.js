@@ -92,7 +92,38 @@ let pets = [
     }
 ];
 
-// Corrigido: Havia duas declarações de 'serviceProviders'. Mantive a mais completa.
+// CORREÇÃO: ADICIONANDO OS DADOS DE CATEGORIA DE SERVIÇO
+const servicesData = [
+    {
+        key: 'vet',
+        icon: '🩺',
+        title: 'Veterinários',
+        description: 'Encontre clínicas veterinárias e profissionais de saúde 24h perto de você.',
+        buttonText: 'Ver Profissionais'
+    },
+    {
+        key: 'sitter',
+        icon: '❤️',
+        title: 'Cuidadores (Pet Sitter)',
+        description: 'Viaje tranquilo! Deixe seu pet com cuidadores amorosos e responsáveis.',
+        buttonText: 'Ver Cuidadores'
+    },
+    {
+        key: 'walker',
+        icon: '🐕',
+        title: 'Passeadores (Dog Walker)',
+        description: 'Seu cãozinho cheio de energia? Contrate um passeador para uma rotina saudável.',
+        buttonText: 'Ver Passeadores'
+    },
+    {
+        key: 'transport',
+        icon: '🚐',
+        title: 'Transporte Pet',
+        description: 'Serviço especializado para transportar seu animal com segurança e conforto.',
+        buttonText: 'Ver Transporte'
+    }
+];
+
 const serviceProviders = [
     {
         id: 1,
@@ -156,7 +187,6 @@ const serviceProviders = [
 // 2. CONTADORES DE ID
 // ===================================================================
 
-// Corrigido: Havia duas declarações desses contadores.
 let nextUserId = 3;
 let nextPetId = 4;
 let nextVaccineId = 3;
@@ -169,6 +199,7 @@ let nextServiceId = 6;
 
 function showMessage(elementId, message, type = 'success') {
     const messageEl = document.getElementById(elementId);
+    if (!messageEl) return;
     messageEl.textContent = message;
     messageEl.className = `message ${type} active`;
     setTimeout(() => {
@@ -177,7 +208,8 @@ function showMessage(elementId, message, type = 'success') {
 }
 
 function formatDate(date) {
-    return date.toLocaleDateString('pt-BR');
+    if (!date) return 'Data inválida';
+    return new Date(date).toLocaleDateString('pt-BR', { timeZone: 'UTC' });
 }
 
 function getSpeciesIcon(species) {
@@ -344,8 +376,8 @@ function handlePetRegistration(event) {
     event.preventDefault();
     
     if (!currentUser) {
-        alert('Você precisa estar logado para cadastrar um pet.');
-        showPage('login');
+        showMessage('petRegisterMessage', 'Você precisa estar logado para cadastrar um pet.', 'error');
+        setTimeout(() => showPage('login'), 2000);
         return;
     }
 
@@ -565,7 +597,8 @@ function clearFilters() {
 // ===================================================================
 
 function loadServices() {
-    const container = document.querySelector('#services .services-grid');
+    // CORREÇÃO: O seletor agora vai funcionar pois a classe no HTML foi corrigida
+    const container = document.querySelector('#services .services-grid'); 
     if (!container) {
         console.error("Container de serviços não encontrado!");
         return;
@@ -594,6 +627,46 @@ function loadServices() {
     `).join('');
 }
 
+// CORREÇÃO: FUNÇÃO ADICIONADA PARA CADASTRO DE SERVIÇO
+function handleServiceRegistration(event) {
+    event.preventDefault();
+
+    if (!currentUser) {
+        showMessage('serviceRegisterMessage', 'Você precisa estar logado para cadastrar um serviço.', 'error');
+        setTimeout(() => showPage('login'), 2000);
+        return;
+    }
+
+    const formData = new FormData(event.target);
+    const serviceData = Object.fromEntries(formData);
+
+    if (!serviceData.category || !serviceData.name || !serviceData.professional || !serviceData.phone || !serviceData.address || !serviceData.description) {
+        showMessage('serviceRegisterMessage', 'Por favor, preencha todos os campos.', 'error');
+        return;
+    }
+
+    const newService = {
+        id: nextServiceId++,
+        ownerId: currentUser.id,
+        category: serviceData.category,
+        name: serviceData.name,
+        professional: serviceData.professional,
+        phone: serviceData.phone,
+        address: serviceData.address,
+        description: serviceData.description,
+        createdAt: new Date()
+    };
+
+    serviceProviders.push(newService);
+    showMessage('serviceRegisterMessage', 'Serviço cadastrado com sucesso!', 'success');
+    document.getElementById('serviceRegisterForm').reset();
+    
+    setTimeout(() => {
+        showPage('services');
+    }, 2000);
+}
+
+
 function showServiceProviders(categoryKey) {
     const category = servicesData.find(s => s.key === categoryKey);
     if (!category) {
@@ -603,20 +676,14 @@ function showServiceProviders(categoryKey) {
 
     const providers = serviceProviders.filter(p => p.category === categoryKey);
     
-    // Assumindo que você tenha estes IDs no seu HTML (eles não estavam no HTML anterior)
+    // CORREÇÃO: Esses elementos agora existem no index.html corrigido
     const titleEl = document.getElementById('servicesListTitle');
     const gridEl = document.getElementById('servicesProviderGrid');
     
-    // Se os elementos acima não existirem, esta parte falhará.
-    // O código abaixo assume que eles existem.
     if (!titleEl || !gridEl) {
         console.error("Elementos 'servicesListTitle' ou 'servicesProviderGrid' não encontrados no HTML.");
-        // Como alternativa, podemos criar uma página dinamicamente, mas isso foge do escopo.
-        // Por enquanto, vamos apenas navegar para a página (que pode estar vazia).
-        showPage('services-list');
         return;
     }
-
 
     titleEl.textContent = category.title;
 
@@ -640,7 +707,7 @@ function showServiceProviders(categoryKey) {
                     <p><strong>Endereço:</strong> ${provider.address}</p>
                 </div>
                 <div class="provider-actions">
-                    <a href="tel:${provider.phone}" class="btn btn-small" style="background: #38a169;">
+                    <a href="tel:${provider.phone.replace(/\D/g,'')}" class="btn btn-small" style="background: #38a169;">
                         📞 Ligar (${provider.phone})
                     </a>
                 </div>
@@ -674,11 +741,21 @@ function handleVaccination(event) {
     const pet = pets.find(p => p.id === petId);
     if (!pet) return;
 
+    // Adiciona 1 dia para corrigir fuso horário do input[type=date]
+    const correctDate = new Date(date);
+    correctDate.setMinutes(correctDate.getMinutes() + correctDate.getTimezoneOffset());
+    
+    let correctNextDate = null;
+    if (nextDate) {
+        correctNextDate = new Date(nextDate);
+        correctNextDate.setMinutes(correctNextDate.getMinutes() + correctNextDate.getTimezoneOffset());
+    }
+
     const newVaccine = {
         id: nextVaccineId++,
         name,
-        date: new Date(date),
-        nextDate: nextDate ? new Date(nextDate) : null,
+        date: correctDate,
+        nextDate: correctNextDate,
         vet: vet || null,
         notes: notes || null
     };
@@ -695,6 +772,7 @@ function handleVaccination(event) {
 
 function getUpcomingVaccines(pet) {
     const today = new Date();
+    today.setHours(0, 0, 0, 0);
     const thirtyDaysFromNow = new Date(today.getTime() + (30 * 24 * 60 * 60 * 1000));
     
     return pet.vaccines.filter(vaccine => {
@@ -707,6 +785,7 @@ function getUpcomingVaccines(pet) {
 function isVaccineUpcoming(vaccine) {
     if (!vaccine.nextDate) return false;
     const today = new Date();
+    today.setHours(0, 0, 0, 0);
     const thirtyDaysFromNow = new Date(today.getTime() + (30 * 24 * 60 * 60 * 1000));
     const nextDate = new Date(vaccine.nextDate);
     return nextDate >= today && nextDate <= thirtyDaysFromNow;
@@ -738,7 +817,7 @@ function openPetProfile(petId) {
     } else if (isOwner && pet.type === 'adoption' && pet.status === 'available') {
          adoptionButton = `
             <div style="text-align: center; margin-top: 25px;">
-                <button class="btn" onclick="markAsAdopted(${pet.id})" style="background: #38a169; width: auto; padding: 15px 30px;">
+                <button class="btn" onclick="markAsAdopted(${pet.id}); closePetModal();" style="background: #38a169; width: auto; padding: 15px 30px;">
                     Marcar como Adotado
                 </button>
             </div>
@@ -836,7 +915,7 @@ function showContact(ownerId) {
             </div>
             <div>
                 <strong style="color: #4a5568;">Telefone:</strong>
-                <a href="tel:${owner.phone}" style="color: #667eea; text-decoration: none; margin-left: 10px;">${owner.phone}</a>
+                <a href="tel:${owner.phone.replace(/\D/g,'')}" style="color: #667eea; text-decoration: none; margin-left: 10px;">${owner.phone}</a>
             </div>
         </div>
     `;
@@ -859,6 +938,10 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('registerForm').addEventListener('submit', handleRegister);
     document.getElementById('petRegisterForm').addEventListener('submit', handlePetRegistration);
     document.getElementById('vaccinationForm').addEventListener('submit', handleVaccination);
+    
+    // CORREÇÃO: ADICIONADO EVENT LISTENER PARA O FORMULÁRIO DE SERVIÇO
+    document.getElementById('serviceRegisterForm').addEventListener('submit', handleServiceRegistration);
+
 
     // Fechar modais ao clicar fora
     document.querySelectorAll('.modal').forEach(modal => {
